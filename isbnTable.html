@@ -7,6 +7,7 @@
     <title>Application CRUD ISBN Tools</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -21,7 +22,7 @@
  
     <h3>ISBNs Data</h3>
     <br />
-    <button class="btn btn-success" onclick="add_person()"><i class="glyphicon glyphicon-plus"></i> Add New Number</button>
+    <button class="btn btn-success" onclick="add_data()"><i class="glyphicon glyphicon-plus"></i> Add New Number</button>
     <input type="hidden" name="lastID" value="" id="lastID">
     <br />
     <br />
@@ -50,6 +51,21 @@
         </tr>
       </tfoot>
     </table>
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Changelog</h2>  
+        <ul>
+          <li>
+            Update 23 Nov 2015 :
+            <ul>
+              <li>Fix function edit data.</li>
+              <li>Fix function delete data.</li>
+              <li>Fix function short by column.</li>
+              <li>Fix function search.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
   </div>
  
   <script src="js/jquery.min.js"></script>
@@ -96,16 +112,16 @@
       });
     });
  
-    function add_person()
-    {
+    function add_data(){
       save_method = 'add';
       $('#form')[0].reset(); // reset form on modals
-      $('#modal_form').modal('show'); // show bootstrap modal
+      $('#modal_form').modal({backdrop: 'static', keyboard: false}); // show bootstrap modal
       $('.modal-title').text('Add New Number'); // Set Title to Bootstrap modal title
+      var id = $('#lastID').val();
+      $("input[name='id']").val(+id+1);
     }
  
-    function edit_person(id)
-    {
+    function edit_data(id){
       save_method = 'update';
       $('#form')[0].reset(); // reset form on modals
  
@@ -114,18 +130,17 @@
         url : "ajax.php?edit=true&id=" + id,
         type: "GET",
         dataType: "JSON",
-        success: function(data)
-        {
- 
+        success: function(data){
+          if(data.length>0){
+            var data = data[0];
             $('[name="id"]').val(data.id);
-            $('[name="firstName"]').val(data.firstName);
-            $('[name="lastName"]').val(data.lastName);
-            $('[name="gender"]').val(data.gender);
-            $('[name="address"]').val(data.address);
-            $('[name="dob"]').val(data.dob);
- 
+            $('[name="isbn_number"]').val(data.isbn_number);
+            $('[name="custom_price"]').val(data.custom_price);
+            $('[name="real_price"]').val(data.real_price);
+            $('[name="difference"]').val(data.difference);
             $('#modal_form').modal('show'); // show bootstrap modal when complete loaded
-            $('.modal-title').text('Edit Person'); // Set title to Bootstrap modal title
+            $('.modal-title').text('Edit Data ISBN'); // Set title to Bootstrap modal title
+          }
  
         },
         error: function (jqXHR, textStatus, errorThrown)
@@ -135,25 +150,20 @@
     });
     }
  
-    function reload_table()
-    {
+    function reload_table(){
       table.ajax.reload(null,false); //reload datatable ajax
     }
  
-    function save()
-    {
+    function save(){
       var url;
-      if(save_method == 'add')
-      {
+      if(save_method == 'add'){
           url = "ajax.php?add=true";
-      }
-      else
-      {
+      }else{
         url = "ajax.php?update=true";
       }
  
        // ajax adding data to database
-          $.ajax({
+        $.ajax({
             url : url,
             type: "POST",
             data: $('#form').serialize(),
@@ -171,10 +181,8 @@
         });
     }
  
-    function delete_person(id)
-    {
-      if(confirm('Are you sure delete this data?'))
-      {
+    function delete_data(id){
+      if(confirm('Are you sure delete this data?')){
         // ajax delete data to database
           $.ajax({
             url : "ajax.php?delete=true&id="+id,
@@ -191,17 +199,18 @@
                 alert('Error adding / update data');
             }
         });
- 
       }
     }
 
     function getRealPrice(){
-      var id = $("input[name='id']").val();
       var isbn_number = $("input[name='isbn_number']").val();
       var custom_price = $("input[name='custom_price']").val();
       var real_price = $("input[name='real_price']").val();
       var difference = $("input[name='difference']").val();
       if(isbn_number && !real_price){
+        $('.modal-content').append('<button class="btn btn-lg btn-warning btn-loading" onclick="return false">'
+          +'<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>'
+          +' Loading...</button><div id="block"></div>');
         $.ajax({
             url : "ajax.php?getRealPrice=true&id="+isbn_number,
             type: "POST",
@@ -217,6 +226,9 @@
                   .match(/\d.\./)[0].replace('.','');
                 $("input[name='real_price']").val(real_price);
                 var difference = (+real_price)-(+custom_price);
+                $("input[name='difference']").val(difference);
+                $('.modal-content .btn-loading').remove();
+                $('.modal-content #block').remove();
               }else{
                 alert(res.msg);
               }
@@ -225,6 +237,9 @@
                 alert('Error adding / update data');
             }
         });
+      }else if(custom_price && real_price){
+        var difference = (+real_price)-(+custom_price);
+        $("input[name='difference']").val(difference);
       }
     }
  
@@ -244,31 +259,31 @@
             <div class="form-group">
               <label class="control-label col-md-3">ID</label>
               <div class="col-md-9">
-                <input name="id" placeholder="ID" class="form-control" type="text" readonly="true">
+                <input name="id" placeholder="ID" class="form-control" type="number" readonly="true">
               </div>
             </div>
             <div class="form-group">
               <label class="control-label col-md-3">ISBN Number</label>
               <div class="col-md-9">
-                <input name="isbn_number" placeholder="ISBN Number" class="form-control" type="text" onchange="getRealPrice();">
+                <input name="isbn_number" placeholder="ISBN Number" class="form-control" type="number" onchange="getRealPrice();">
               </div>
             </div>
             <div class="form-group">
               <label class="control-label col-md-3">Custom Price</label>
               <div class="col-md-9">
-                <input name="custom_price" placeholder="Custom Price" class="form-control" type="text" onchange="getRealPrice();">
+                <input name="custom_price" placeholder="Custom Price" class="form-control" type="number" onchange="getRealPrice();">
               </div>
             </div>
             <div class="form-group">
               <label class="control-label col-md-3">Real Price</label>
               <div class="col-md-9">
-                <input name="real_price" placeholder="Custom Price" class="form-control" type="text" readonly="true">
+                <input name="real_price" placeholder="Custom Price" class="form-control" type="number" readonly="true">
               </div>
             </div>
             <div class="form-group">
               <label class="control-label col-md-3">Difference</label>
               <div class="col-md-9">
-                <input name="difference" placeholder="Custom Price" class="form-control" type="text" readonly="true">
+                <input name="difference" placeholder="Custom Price" class="form-control" type="number" readonly="true">
               </div>
             </div>
           </div>
