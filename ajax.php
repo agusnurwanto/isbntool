@@ -1,5 +1,7 @@
 <?php
 
+// http://mbahcoding.com/php/codeigniter/codeigniter-ajax-crud-using-bootstrap-modals-and-datatable.html
+
 if(!empty($_GET['list'])){
     $allData = get_datatables();
     // echo "<pre>".print_r($data,1)."</pre>";die();
