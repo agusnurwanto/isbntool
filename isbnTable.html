@@ -111,6 +111,7 @@
               <li>Add feature upload CSV.</li>
               <li>Add feature add numbers with textarea.</li>
               <li>Change default alert with sweetallert library.</li>
+              <li>Fix error length ISBNs (must 10 caracther).</li>
             </ul>
           </li>
         </ul>
@@ -140,6 +141,14 @@
             "type": "POST",
             dataSrc: function(d){
               $("#lastID").val(d.lastID);
+              window.data = d.data;
+              for(var j in d.data){
+                for(var i=0; i<10; i++){
+                  if(!d.data[j][1][i]){
+                    d.data[j][1][i] = "X";
+                  }
+                }
+              }
               return d.data;
             }
         },
@@ -359,6 +368,7 @@
         +' Loading...</button><div id="block-full"></div>');
       var i = j = 0;
       window.cekEmpty = "";
+      window.cekSucces = "";
       allKey.reduce(function(sequence, key) {
           return sequence.then(function() {
             return getPage(key);
@@ -393,6 +403,15 @@
       reload_table();
     }
 
+    function changeFormat(id){
+      if(id.length<10){
+        id = "0"+id;
+        return changeFormat(id);
+      }else{
+        return id;
+      }
+    }
+
     function getPage(id){
       isbn_number = id.match(/\d/g);
       // for(var i=0; i<10; i++){
@@ -400,6 +419,7 @@
       //     isbn_number[i] = "x";
       // }
       isbn_number = isbn_number.join("");
+      isbn_number = changeFormat(isbn_number);
       return new Promise(function(resolve, reject){
         $.ajax({
           url : "ajax.php?getRealPrice=true&id="+isbn_number,
@@ -411,8 +431,9 @@
                   .replace(/<img[^>]*>/g,"")
                   .replace(/<link[^>]*>/g,"")
                   .replace(/<script[^>]*>/g,""));
-              cekEmpty += "<br>"+$("#ctl00_ContentPlaceHolder1_trSpecialMessage", html).text().trim();
-              if(cekEmpty){
+              var err = $("#ctl00_ContentPlaceHolder1_trSpecialMessage", html).text().trim();
+              if(err){
+                cekEmpty += "<br>"+err;
                 swal({   
                   title: "Error Scrape",   
                   text: cekEmpty,
@@ -422,7 +443,7 @@
               }else{
                 var real_price = $("table.gvItemsBuyback table", html).eq(0)
                   .find("td div span").text()
-                  .match(/\d.\./)[0].replace('.','');
+                  .split("$")[1];
                 var id = $("#lastID").val();
                 var options = {
                   id: (+id)+1,
@@ -430,9 +451,10 @@
                   real_price: real_price
                 }
                 saveData(options, function(){
+                  cekSucces += "<br>"+isbn_number+" is available. Sell Price: $"+real_price
                   swal({   
                     title: "success Scrape",   
-                    text: isbn_number+" is available. Sell Price: $"+real_price,
+                    text: cekSucces,
                     html: true
                   });
                   return resolve();
