@@ -42,4 +42,21 @@
     top: 0px;
     opacity: 0.3;
 }
+.m15{ margin: 15px; }
+
+.btn-loading-full{
+    position: fixed;
+    top: 200px;
+    left: 47%;
+    z-index: 22;
+}
+
+#block-full{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    top: 0px;
+    opacity: 0.3;
+    z-index: 11;
 }

@@ -8,6 +8,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/dataTables.bootstrap.min.css" rel="stylesheet">
     <link href="css/custom.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/sweetalert.css">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -20,20 +21,53 @@
   <div class="container">
     <h1>Application CRUD ISBN Tools</h1>
  
-    <h3>ISBNs Data</h3>
-    <br />
-    <button class="btn btn-success" onclick="add_data()"><i class="glyphicon glyphicon-plus"></i> Add New Number</button>
-    <input type="hidden" name="lastID" value="" id="lastID">
-    <br />
-    <br />
+    <br>
+    <h2>Add new Number</h2>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist" id="newNumber">
+      <li role="presentation" class="active"><a href="#upload" aria-controls="upload" role="tab" data-toggle="tab">Upload CSV</a></li>
+      <li role="presentation"><a href="#listNumber" aria-controls="listNumber" role="tab" data-toggle="tab">Textarea</a></li>
+      <li role="presentation"><a href="#manual" aria-controls="manual" role="tab" data-toggle="tab">Manual</a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="upload">
+        <div class="row" id="pickfiles-container">
+          <div class="col-md-12 m15">
+            <button class="btn btn-warning" id="pickfiles"><i class="glyphicon glyphicon-plus"></i> Upload CSV number</button>
+          </div>
+        </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="listNumber">
+        <div class="row">
+          <div class="col-md-12 m15">
+            <textarea name="list-number" id="" style="width:90%" rows="5" placeholder="Example: 19286391232, 128479187493, 123492834"></textarea>
+            <br>
+            <button class="btn btn-warning" onclick="add_data_textarea()">Submit</button>
+          </div>
+        </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="manual">
+        <div class="row">
+          <div class="col-md-12 m15">
+            <button class="btn btn-warning" onclick="add_data()"><i class="glyphicon glyphicon-plus"></i> Add New Number</button>
+            <input type="hidden" name="lastID" value="" id="lastID">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <br>
+    <h2>ISBNs Data</h2>
     <table id="table" class="table table-striped table-bordered" cellspacing="0" width="100%">
       <thead>
         <tr>
           <th>ID</th>
-          <th>ISBN Number</th>
-          <th>Custom Price</th>
-          <th>Real Price</th>
-          <th>Difference</th>
+          <th>ISBN</th>
+          <th>Buy Price</th>
+          <th>Sell Price</th>
+          <th>Current Bookbyte Price</th>
           <th style="width:125px;">Action</th>
         </tr>
       </thead>
@@ -64,14 +98,31 @@
               <li>Fix function search.</li>
             </ul>
           </li>
+          <li>
+            Update 24 Nov 2015 :
+            <ul>
+              <li>Change upload data to <a href="https://fultonfile-agusnurwanto.rhcloud.com/tmp">fultonfile-agusnurwanto.rhcloud.com</a>.</li>
+            </ul>
+          </li>
+          <li>
+            Update 25 Nov 2015 :
+            <ul>
+              <li>Change upload data to local file system.</li>
+              <li>Add feature upload CSV.</li>
+              <li>Add feature add numbers with textarea.</li>
+              <li>Change default alert with sweetallert library.</li>
+            </ul>
+          </li>
         </ul>
       </div>
   </div>
  
   <script src="js/jquery.min.js"></script>
+  <script src="plupload/js/plupload.full.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/jquery.dataTables.min.js"></script>
   <script src="js/dataTables.bootstrap.min.js"></script>
+  <script src="js/sweetalert.min.js"></script>
  
   <script type="text/javascript">
  
@@ -98,6 +149,12 @@
           {
             "targets": [ -1 ], //last column
             "orderable": false, //set not orderable
+          },
+          { 'orderData':[2], 'targets': [0] },
+          {
+              'targets': [0],
+              'visible': false,
+              'searchable': false
           },
         ],
         "columns": [
@@ -145,7 +202,7 @@
         },
         error: function (jqXHR, textStatus, errorThrown)
         {
-            alert('Error get data from ajax');
+            swal('Error get data from ajax');
         }
     });
     }
@@ -176,7 +233,7 @@
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
-                alert('Error adding / update data');
+                swal('Error adding / update data');
             }
         });
     }
@@ -196,7 +253,7 @@
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
-                alert('Error adding / update data');
+                swal('Error adding / update data');
             }
         });
       }
@@ -230,11 +287,11 @@
                 $('.modal-content .btn-loading').remove();
                 $('.modal-content #block').remove();
               }else{
-                alert(res.msg);
+                swal(res.msg);
               }
             },
             error: function (jqXHR, textStatus, errorThrown){
-                alert('Error adding / update data');
+                swal('Error adding / update data');
             }
         });
       }else if(custom_price && real_price){
@@ -243,6 +300,191 @@
       }
     }
  
+    $('#newNumber a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+
+    window.allData = {};
+    allData.vat = {};
+
+    // Initialize the widget when the DOM is ready
+    var uploader = new plupload.Uploader({
+      runtimes : 'html5,flash,silverlight,html4',
+      browse_button : 'pickfiles',
+      container: document.getElementById('pickfiles-container'),
+      url : 'readCsv.php',
+      filters : {
+        max_file_size : '10mb',
+        mime_types: [
+          {title : "CSV Files", extensions : "csv"}
+        ]
+      },
+      flash_swf_url : 'plupload/js/Moxie.swf',
+      silverlight_xap_url : 'plupload/js/Moxie.xap',
+      multipart: true,
+      multipart_params: {
+        action: "read_csv"
+      },
+      file_data_name: "async-upload",
+      init : {
+        FilesAdded: function(up, files) {
+          $('#console').show();
+          $('#console').html('<div class="title">Reading the CSV File.</div>');
+          if($('#random-proxy:checked').val()){
+            uploader.setOption("url","readCsv.php?radomProxy=true");
+          }else{
+            uploader.setOption("url","readCsv.php");
+          }
+              up.refresh();
+              up.start();
+        },
+        FileUploaded: function(up, file, response) {
+          var res = JSON.parse(response.response);
+          if(res.error!="1"){
+            window.allKey = res.msg;
+            startScrape();
+          }else{
+            swal(res.msg);
+            console.log(res);
+          }
+        }
+      },
+    });
+    uploader.init();
+
+    function startScrape(){
+      $('body').append('<button class="btn btn-lg btn-warning btn-loading-full" onclick="return false">'
+        +'<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>'
+        +' Loading...</button><div id="block-full"></div>');
+      var i = j = 0;
+      window.cekEmpty = "";
+      allKey.reduce(function(sequence, key) {
+          return sequence.then(function() {
+            return getPage(key);
+          })
+          .then(function(res){
+            return new Promise(function(resolve, reject){
+              if(i>=(allKey.length-1)){
+                if(cekEmpty){
+                  swal({   
+                    title: "Error Scrape",   
+                    text: cekEmpty,
+                    html: true
+                  });
+                }
+                return resolve(finishScrape());
+              }
+              i++;
+              return resolve(res);
+            });
+          })
+          .catch(function(err){
+            console.log(err.stack);
+            i++;
+            return Promise.reject(err);
+          })
+      }, Promise.resolve());
+    }
+
+    function finishScrape(){
+      $('.btn-loading-full').remove();
+      $('#block-full').remove();
+      reload_table();
+    }
+
+    function getPage(id){
+      isbn_number = id.match(/\d/g);
+      // for(var i=0; i<10; i++){
+      //   if(!isbn_number[i])
+      //     isbn_number[i] = "x";
+      // }
+      isbn_number = isbn_number.join("");
+      return new Promise(function(resolve, reject){
+        $.ajax({
+          url : "ajax.php?getRealPrice=true&id="+isbn_number,
+          type: "POST",
+          dataType: "JSON",
+          success: function(res){
+            if(res.error=="0"){
+              var html = $.parseHTML(res.msg
+                  .replace(/<img[^>]*>/g,"")
+                  .replace(/<link[^>]*>/g,"")
+                  .replace(/<script[^>]*>/g,""));
+              cekEmpty += "<br>"+$("#ctl00_ContentPlaceHolder1_trSpecialMessage", html).text().trim();
+              if(cekEmpty){
+                swal({   
+                  title: "Error Scrape",   
+                  text: cekEmpty,
+                  html: true
+                });
+                resolve();
+              }else{
+                var real_price = $("table.gvItemsBuyback table", html).eq(0)
+                  .find("td div span").text()
+                  .match(/\d.\./)[0].replace('.','');
+                var id = $("#lastID").val();
+                var options = {
+                  id: (+id)+1,
+                  isbn_number: isbn_number,
+                  real_price: real_price
+                }
+                saveData(options, function(){
+                  swal({   
+                    title: "success Scrape",   
+                    text: isbn_number+" is available. Sell Price: $"+real_price,
+                    html: true
+                  });
+                  return resolve();
+                });
+              }
+            }else{
+              swal(res.msg);
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown){
+              swal('Error adding / update data');
+          }
+        });
+      })
+      .catch(function(err){
+        console.log(err.stack);
+        return Promise.reject();
+      });
+    }
+
+    function saveData(options, cb){
+      var data = "id="+options.id
+        +"&isbn_number="+options.isbn_number
+        +"&custom_price=0"
+        +"&real_price="+options.real_price
+        +"&difference="+options.real_price
+      $.ajax({
+          url : "ajax.php?replace=true",
+          type: "POST",
+          data: data,
+          dataType: "JSON",
+          success: function(data){
+             $('#modal_form').modal('hide');
+             reload_table();
+             cb();
+          },
+          error: function (jqXHR, textStatus, errorThrown){
+              swal('Error adding / update data');
+          }
+      });
+    }
+
+    function add_data_textarea(){
+      var val = $("textarea[name='list-number']").val();
+      if(val){
+        val = val.split(",");
+        window.allKey = val;
+        return startScrape();
+      }else{
+        return swal("ISBNs number is required!");
+      }
+    }
   </script>
  
   <!-- Bootstrap modal -->
@@ -256,7 +498,7 @@
       <div class="modal-body form">
         <form action="#" id="form" class="form-horizontal">
           <div class="form-body">
-            <div class="form-group">
+            <div class="form-group" style="display:none">
               <label class="control-label col-md-3">ID</label>
               <div class="col-md-9">
                 <input name="id" placeholder="ID" class="form-control" type="number" readonly="true">

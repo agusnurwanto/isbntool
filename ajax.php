@@ -67,9 +67,10 @@ if(!empty($_GET['list'])){
 
 function get_datatables($id=false){
 	$content = file_get_contents('database/isbnNumbers.json');
+	// $content = file_get_contents("https://fultonfile-agusnurwanto.rhcloud.com/tmp/json/isbnNumbers.json");
 	$content = json_decode($content);
-    $search = $_POST["search"]["value"];
-    if(!empty($search)){
+    if(!empty($_POST["search"]["value"])){
+    	$search = $_POST["search"]["value"];
     	$newData = array();
     	foreach ($content as $k => $v) {
     		$cek = strchr($v->id, $search);
@@ -143,7 +144,7 @@ if(!empty($_GET["add"])){
             "difference" => $difference,
         );
     $dt["content"][] = $data;
-    file_put_contents("database/isbnNumbers.json", json_encode($dt["content"]));
+	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($dt["content"])));
     echo json_encode(array("status" => TRUE));
 }
 
@@ -181,7 +182,33 @@ if(!empty($_GET["update"])){
 			$data["content"][$k]->difference = $difference;
 		}
 	}
-	file_put_contents("database/isbnNumbers.json", json_encode($data["content"]));
+	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($data["content"])));
+	die(json_encode(array("status" => TRUE)));
+}
+
+if(!empty($_GET["replace"])){
+	$id = $_POST["id"];
+	$isbn_number = $_POST["isbn_number"];
+	$custom_price = $_POST["custom_price"];
+	$real_price = $_POST["real_price"];
+	$difference = $_POST["difference"];
+	$data = get_datatables();
+	$cek = false;
+	foreach ($data["content"] as $k => $v) {
+		if($data["content"][$k]->isbn_number==$isbn_number){
+			$data["content"][$k]->isbn_number = $isbn_number;
+			$data["content"][$k]->custom_price = $custom_price;
+			$data["content"][$k]->real_price = $real_price;
+			$data["content"][$k]->difference = $difference;
+			$cek = true;
+			break;
+		}
+	}
+	if(empty($cek)){
+		$data["content"][] = $_POST;
+	}
+	// echo "<pre>".print_r($data["content"],1)."</pre>";
+	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($data["content"])));
 	die(json_encode(array("status" => TRUE)));
 }
 
@@ -196,8 +223,22 @@ if(!empty($_GET["delete"])){
 			$newData[] = $v;
 		}
 	}
-	file_put_contents("database/isbnNumbers.json", json_encode($newData));
+	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($newData)));
 	die(json_encode(array("status" => TRUE)));
+}
+
+function putContent($options){
+	return file_put_contents("database/".$options["file"], $options["content"]);
+
+	$url_base = "https://fultonfile-agusnurwanto.rhcloud.com";
+	request(array(
+		"url"	=> $url_base."/createFolders.php", 
+		"param"	=> array(
+			"folder"	=> $options["folder"],
+			"file"		=> $options["file"],
+			"output"	=> $options["content"]
+		)
+	));
 }
 
 function request($option){
@@ -216,6 +257,7 @@ function request($option){
   	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
   	curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 	$server_output = curl_exec ($ch);
+	// echo $server_output."cek123";
 	curl_close ($ch);
 	return $server_output;
 }
