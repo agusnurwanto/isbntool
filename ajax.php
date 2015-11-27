@@ -214,13 +214,15 @@ if(!empty($_GET["replace"])){
 
 if(!empty($_GET["delete"])){
 	$id = $_GET["id"];
-	$data = get_datatables();
 	$newData = array();
-	foreach ($data["content"] as $k => $v) {
-		if($v->id==$id){
-			unset($data["content"][$k]);
-		}else{
-			$newData[] = $v;
+	if($id!="all"){
+		$data = get_datatables();
+		foreach ($data["content"] as $k => $v) {
+			if($v->id==$id){
+				unset($data["content"][$k]);
+			}else{
+				$newData[] = $v;
+			}
 		}
 	}
 	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($newData)));
@@ -239,6 +241,15 @@ function putContent($options){
 			"output"	=> $options["content"]
 		)
 	));
+}
+
+if(!empty($_GET["getKeys"])){
+	$keys = array();
+	$data = get_datatables();
+	foreach ($data["content"] as $k => $v) {
+		$keys[] = $v->isbn_number;
+	}
+	die(json_encode($keys));
 }
 
 function request($option){
