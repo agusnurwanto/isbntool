@@ -66,7 +66,7 @@
           <th>ID</th>
           <th>ISBN</th>
           <th>Buy Price</th>
-          <th>Current Bookbyte Price</th>
+          <th>Sell Price</th>
           <th>Difference</th>
           <th style="width:125px;">Action</th>
         </tr>
@@ -79,7 +79,7 @@
           <th>ID</th>
           <th>ISBN</th>
           <th>Buy Price</th>
-          <th>Current Bookbyte Price</th>
+          <th>Sell Price</th>
           <th>Difference</th>
           <th style="width:125px;">Action</th>
         </tr>
@@ -170,6 +170,8 @@
               <li>Add featured export data.</li>
               <li>Add dellete all button.</li>
               <li>Add refresh all current bookbyte price button.</li>
+              <li>Add default order by ID DESC.</li>
+              <li>Change header field name.</li>
             </ul>
           </li>
         </ul>
@@ -211,6 +213,7 @@
               return d.data;
             }
         },
+        "order": [[ 0, "desc" ]],
  
         //Set column definition initialisation properties.
         "columnDefs": [
@@ -218,7 +221,6 @@
             "targets": [ -1 ], //last column
             "orderable": false, //set not orderable
           },
-          { 'orderData':[2], 'targets': [0] },
           {
               'targets': [0],
               'visible': false,
