@@ -197,9 +197,14 @@ if(!empty($_GET["replace"])){
 	foreach ($data["content"] as $k => $v) {
 		if($data["content"][$k]->isbn_number==$isbn_number){
 			$data["content"][$k]->isbn_number = $isbn_number;
-			$data["content"][$k]->custom_price = $custom_price;
+			if($custom_price!=0){
+				$data["content"][$k]->custom_price = $custom_price;
+				$data["content"][$k]->difference = $difference;
+			}else{
+				$difference = $real_price - $data["content"][$k]->custom_price;
+				$data["content"][$k]->difference = $difference;
+			}
 			$data["content"][$k]->real_price = $real_price;
-			$data["content"][$k]->difference = $difference;
 			$cek = true;
 			break;
 		}
