@@ -60,3 +60,14 @@
     opacity: 0.3;
     z-index: 11;
 }
+
+.clear {
+    clear: both;
+}
+
+.DTTT.btn-group {
+    margin-bottom: 20px;
+    float: right;
+}
+
+.dataTables_length{ float: left; }
