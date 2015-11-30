@@ -194,7 +194,7 @@ if(!empty($_GET["replace"])){
 	$isbn_number = $_POST["isbn_number"];
 	$custom_price = $_POST["custom_price"];
 	$real_price = $_POST["real_price"];
-	$difference = $_POST["difference"];
+	$difference = round($_POST["difference"], 2);
 	$data = get_datatables();
 	$cek = false;
 	foreach ($data["content"] as $k => $v) {
@@ -203,8 +203,8 @@ if(!empty($_GET["replace"])){
 				$data["content"][$k]->custom_price = $custom_price;
 				$data["content"][$k]->difference = round($difference, 2);
 			}else{
-				$difference = round($real_price - $data["content"][$k]->custom_price, 2);
-				$data["content"][$k]->difference = $difference;
+				$difference = $real_price - $data["content"][$k]->custom_price;
+				$data["content"][$k]->difference = round($difference, 2);
 			}
 			$data["content"][$k]->real_price = $real_price;
 			$cek = true;
