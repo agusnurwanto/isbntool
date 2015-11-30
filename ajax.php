@@ -141,7 +141,7 @@ if(!empty($_GET["add"])){
             "isbn_number" => $isbn_number,
             "custom_price" => $custom_price,
             "real_price" => $real_price,
-            "difference" => $difference,
+            "difference" => round($difference, 2),
         );
     $dt["content"][] = $data;
 	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($dt["content"])));
@@ -155,6 +155,9 @@ function getRealPrice($id){
 	$data = array();
 	$data["msg"] = request($option);
 	$data["error"] = 0;
+	if(empty($data["msg"])){
+		$data["error"] = 1;
+	}
 	die(json_encode($data));
 }
 
@@ -179,7 +182,7 @@ if(!empty($_GET["update"])){
 			$data["content"][$k]->isbn_number = $isbn_number;
 			$data["content"][$k]->custom_price = $custom_price;
 			$data["content"][$k]->real_price = $real_price;
-			$data["content"][$k]->difference = $difference;
+			$data["content"][$k]->difference = round($difference, 2);
 		}
 	}
 	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($data["content"])));
@@ -196,25 +199,26 @@ if(!empty($_GET["replace"])){
 	$cek = false;
 	foreach ($data["content"] as $k => $v) {
 		if($data["content"][$k]->isbn_number==$isbn_number){
-			$data["content"][$k]->isbn_number = $isbn_number;
 			if($custom_price!=0){
 				$data["content"][$k]->custom_price = $custom_price;
-				$data["content"][$k]->difference = $difference;
+				$data["content"][$k]->difference = round($difference, 2);
 			}else{
-				$difference = $real_price - $data["content"][$k]->custom_price;
+				$difference = round($real_price - $data["content"][$k]->custom_price, 2);
 				$data["content"][$k]->difference = $difference;
 			}
 			$data["content"][$k]->real_price = $real_price;
 			$cek = true;
+			$currentData = $data["content"][$k];
 			break;
 		}
 	}
 	if(empty($cek)){
 		$data["content"][] = $_POST;
+		$currentData = $_POST;
 	}
 	// echo "<pre>".print_r($data["content"],1)."</pre>";
 	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($data["content"])));
-	die(json_encode(array("status" => TRUE)));
+	die(json_encode(array("status" => TRUE, "data" => $currentData)));
 }
 
 if(!empty($_GET["delete"])){
@@ -252,7 +256,8 @@ if(!empty($_GET["getKeys"])){
 	$keys = array();
 	$data = get_datatables();
 	foreach ($data["content"] as $k => $v) {
-		$keys[] = $v->isbn_number;
+		$keys[$k]["isbn"] = $v->isbn_number;
+		$keys[$k]["buy"] = $v->custom_price;
 	}
 	die(json_encode($keys));
 }

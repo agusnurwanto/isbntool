@@ -15,7 +15,8 @@ if((!empty($_POST['action']) && $_POST['action']=="read_csv")
 		$allData = $csv->setOffset(1)->fetchAll();
 		$no = array();
 		foreach ($allData as $k => $v) {
-			$no[] = $v[2];
+			$no[$k]["isbn"] = $v[2];
+			$no[$k]["buy"] = $v[6];
 		}
 		$res["msg"] = $no;
 	}else{

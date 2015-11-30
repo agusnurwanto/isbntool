@@ -394,14 +394,12 @@
             type: "POST",
             data: $('#form').serialize(),
             dataType: "JSON",
-            success: function(data)
-            {
+            success: function(data){
                //if success close modal and reload ajax table
                $('#modal_form').modal('hide');
                reload_table();
             },
-            error: function (jqXHR, textStatus, errorThrown)
-            {
+            error: function (jqXHR, textStatus, errorThrown){
                 swal('Error adding / update data');
             }
         });
@@ -414,14 +412,12 @@
             url : "ajax.php?delete=true&id="+id,
             type: "POST",
             dataType: "JSON",
-            success: function(data)
-            {
+            success: function(data){
                //if success reload ajax table
                $('#modal_form').modal('hide');
                reload_table();
             },
-            error: function (jqXHR, textStatus, errorThrown)
-            {
+            error: function (jqXHR, textStatus, errorThrown){
                 swal('Error adding / update data');
             }
         });
@@ -531,6 +527,7 @@
       window.cekSucces = "";
       allKey.reduce(function(sequence, key) {
           return sequence.then(function() {
+            console.log("key", key);
             return getPage(key);
           })
           .then(function(res){
@@ -572,12 +569,8 @@
       }
     }
 
-    function getPage(id){
-      isbn_number = id.match(/\d/g);
-      // for(var i=0; i<10; i++){
-      //   if(!isbn_number[i])
-      //     isbn_number[i] = "x";
-      // }
+    function getPage(ids){
+      isbn_number = ids["isbn"].match(/\d/g);
       isbn_number = isbn_number.join("");
       isbn_number = changeFormat(isbn_number);
       return new Promise(function(resolve, reject){
@@ -608,9 +601,11 @@
                 var options = {
                   id: (+id)+1,
                   isbn_number: isbn_number,
+                  custom_price: ids["buy"],
                   real_price: real_price
                 }
-                saveData(options, function(){
+                saveData(options, function(id){
+                  $("#lastID").val(id);
                   cekSucces += "<br>"+isbn_number+" is available. Sell Price: $"+real_price
                   swal({   
                     title: "success Scrape",   
@@ -621,7 +616,13 @@
                 });
               }
             }else{
-              swal(res.msg);
+              cekEmpty += "<br>Response scrape false!";
+              swal({   
+                title: "Error Scrape",   
+                text: cekEmpty,
+                html: true
+              });
+              return resolve();
             }
           },
           error: function (jqXHR, textStatus, errorThrown){
@@ -636,20 +637,26 @@
     }
 
     function saveData(options, cb){
+      var custom_price = 0;
+      var difference = 0;
+      if(options.custom_price){
+        custom_price = +options.custom_price;
+        difference = (+options.real_price) - custom_price;
+      }
       var data = "id="+options.id
         +"&isbn_number="+options.isbn_number
-        +"&custom_price=0"
+        +"&custom_price="+custom_price
         +"&real_price="+options.real_price
-        +"&difference="+options.real_price
+        +"&difference="+difference
       $.ajax({
           url : "ajax.php?replace=true",
           type: "POST",
           data: data,
           dataType: "JSON",
-          success: function(data){
+          success: function(res){
              $('#modal_form').modal('hide');
              reload_table();
-             cb();
+             cb(+(res.data.id)+1);
           },
           error: function (jqXHR, textStatus, errorThrown){
               swal('Error adding / update data');
