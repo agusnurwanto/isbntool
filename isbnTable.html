@@ -35,6 +35,11 @@
       <div role="tabpanel" class="tab-pane active" id="upload">
         <div class="row" id="pickfiles-container">
           <div class="col-md-12 m15">
+            <label for="cekImportNumber">
+              <input type="checkbox" id="cekImportNumber"> CSV number From same tools.
+            </label>
+            <br>
+            <br>
             <button class="btn btn-warning" id="pickfiles"><i class="glyphicon glyphicon-plus"></i> Upload CSV number</button>
           </div>
         </div>
@@ -181,6 +186,14 @@
               <li>Add buy price from excel to table.</li>
               <li>Fix error ordered when click refresh all.</li>
               <li>Round difference value.</li>
+            </ul>
+          </li>
+          <li>
+            Update 03 Dec 2015 :
+            <ul>
+              <li>Fix error textarea Add new Number.</li>
+              <li>Fix error ordered on difference field.</li>
+              <li>Add new feature for insert data with import CSV from same tools.</li>
             </ul>
           </li>
         </ul>
@@ -504,8 +517,8 @@
         FilesAdded: function(up, files) {
           $('#console').show();
           $('#console').html('<div class="title">Reading the CSV File.</div>');
-          if($('#random-proxy:checked').val()){
-            uploader.setOption("url","readCsv.php?radomProxy=true");
+          if($('#cekImportNumber:checked').val()){
+            uploader.setOption("url","readCsv.php?importNumber=true");
           }else{
             uploader.setOption("url","readCsv.php");
           }
@@ -513,13 +526,18 @@
               up.start();
         },
         FileUploaded: function(up, file, response) {
-          var res = JSON.parse(response.response);
-          if(res.error!="1"){
-            window.allKey = res.msg;
-            startScrape();
-          }else{
-            swal(res.msg);
-            console.log(res);
+          try{
+            var res = JSON.parse(response.response);
+            if(res.error!="1"){
+              window.allKey = res.msg;
+              startScrape();
+            }else{
+              swal(res.msg);
+              console.log(res);
+            } 
+          }catch(e){
+            swal("Error: "+e.message);
+            console.log(e.stack);
           }
         }
       },
@@ -609,7 +627,7 @@
                 var options = {
                   id: (+id)+1,
                   isbn_number: isbn_number,
-                  custom_price: ids["buy"],
+                  custom_price: ids["buy"] || 0,
                   real_price: real_price
                 }
                 saveData(options, function(id){
@@ -676,7 +694,10 @@
       var val = $("textarea[name='list-number']").val();
       if(val){
         val = val.split(",");
-        window.allKey = val;
+        window.allKey = [];
+        for(var i in val){
+          allKey.push({ isbn: val[i], buy: 0 });
+        }
         return startScrape();
       }else{
         return swal("ISBNs number is required!");

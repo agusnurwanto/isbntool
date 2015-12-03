@@ -73,3 +73,10 @@
 .dataTables_length{ float: left; }
 
 div#table_info{ float: left; }
+
+div.sweet-alert > p{
+    display: block;
+    margin-top: -108px;
+    max-height: 400px;
+    overflow: auto;
+}

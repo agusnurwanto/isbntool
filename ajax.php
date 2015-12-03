@@ -36,7 +36,7 @@ if(!empty($_GET['list'])){
         //add html for action
         $row[] = '<a class="btn btn-sm btn-primary" onclick="edit_data('."'".$dt->id."'".'); return false;" href="javascript:void()" title="Edit"><i class="glyphicon glyphicon-pencil"></i> Edit</a>
               <a class="btn btn-sm btn-danger" onclick="delete_data('."'".$dt->id."'".'); return false;" href="javascript:void()" title="Hapus"><i class="glyphicon glyphicon-trash"></i> Delete</a>';
-        $data[$dt->$k][] = $row;
+        $data[strval($dt->$k)][] = $row;
     }
     // echo "<pre>".print_r($data, 1)."</pre>";
     if($orderType=="asc"){
