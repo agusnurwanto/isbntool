@@ -1,5 +1,9 @@
 <?php
 
+if(!empty($_GET["saveFlippiness"])){
+	die(json_encode(array("success"=>"true")));
+}
+
 // http://mbahcoding.com/php/codeigniter/codeigniter-ajax-crud-using-bootstrap-modals-and-datatable.html
 
 if(!empty($_GET['list'])){
