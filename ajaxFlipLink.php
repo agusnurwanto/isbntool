@@ -1,5 +1,13 @@
 <?php
 
+if(!empty($_GET["getPrice"])){
+	$options = array(
+		"url" => $_GET["url"]
+	);
+	$html_price = request($options);
+	die($html_price);
+}
+
 if(!empty($_GET["saveFlippiness"])){
 	die(json_encode(array("success"=>"true")));
 }

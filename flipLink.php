@@ -29,10 +29,11 @@
         <tr>
           <th>ID</th>
           <th>ISBN</th>
-          <th>flippiness.com Buy Price</th>
-          <th>ebay.com Link</th>
-          <th>amazon.com Link</th>
-          <th>chegg.com Link</th>
+          <th>Site</th>
+          <th>Link</th>
+          <th>Bookbyte Link</th>
+          <th>Price</th>
+          <th>Bookbyte Price</th>
           <th style="width:125px;">Action</th>
         </tr>
       </thead>
@@ -43,10 +44,11 @@
         <tr>
           <th>ID</th>
           <th>ISBN</th>
-          <th>flippiness.com Buy Price</th>
-          <th>ebay.com Link</th>
-          <th>amazon.com Link</th>
-          <th>chegg.com Link</th>
+          <th>Site</th>
+          <th>Link</th>
+          <th>Bookbyte Link</th>
+          <th>Price</th>
+          <th>Bookbyte Price</th>
           <th style="width:125px;">Action</th>
         </tr>
       </tfoot>
