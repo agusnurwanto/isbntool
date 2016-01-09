@@ -1,4 +1,6 @@
 <?php
+ini_set('max_execution_time', 300); //300 seconds = 5 minutes
+ini_set('memory_limit', '-1');
 
 // http://mbahcoding.com/php/codeigniter/codeigniter-ajax-crud-using-bootstrap-modals-and-datatable.html
 
@@ -292,8 +294,8 @@ function request($option){
   	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36");
   	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-  	curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+  	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 600);
+  	curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 	$server_output = curl_exec ($ch);
 	// echo $server_output."cek123";
 	curl_close ($ch);

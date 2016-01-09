@@ -293,11 +293,11 @@ function request($option){
 	$url = $option['url'];
 	$ch = curl_init();
 	$proxy = getProxy();
-
-	curl_setopt($ch, CURLOPT_URL,$url);
 	if (isset($proxy)) {
 	    curl_setopt($ch, CURLOPT_PROXY, $proxy);
 	}
+
+	curl_setopt($ch, CURLOPT_URL,$url);
 	if(!empty($option['param'])){
 		$param = http_build_query($option['param']);
 		curl_setopt($ch, CURLOPT_POST, 1);
@@ -306,8 +306,8 @@ function request($option){
   	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36");
   	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-  	curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+  	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 600);
+  	curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 	$server_output = curl_exec ($ch);
 	// echo $server_output."cek123";
 	curl_close ($ch);
