@@ -274,11 +274,28 @@ if(!empty($_GET["getKeys"])){
 	die(json_encode($keys));
 }
 
+// http://www.jacobward.co.uk/using-proxies-for-scraping-with-php-curl/
+function getProxy(){
+	// if(!empty($_GET['radomProxy'])){
+		require __DIR__ . '/library/getProxy.php';
+		$hoge = new Proxy();
+		$hoge->setRandomProxyAndPort();
+		$proxy = $hoge->getProxy().":".$hoge->getPort();
+		return $proxy;
+	// }else{
+	// 	return false;
+	// }
+}
+
 function request($option){
 	$url = $option['url'];
 	$ch = curl_init();
+	$proxy = getProxy();
 
 	curl_setopt($ch, CURLOPT_URL,$url);
+	if (isset($proxy)) {
+	    curl_setopt($ch, CURLOPT_PROXY, $proxy);
+	}
 	if(!empty($option['param'])){
 		$param = http_build_query($option['param']);
 		curl_setopt($ch, CURLOPT_POST, 1);
