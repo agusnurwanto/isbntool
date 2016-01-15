@@ -1,4 +1,6 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
+
 ini_set('max_execution_time', 300); //300 seconds = 5 minutes
 ini_set('memory_limit', '-1');
 
@@ -67,10 +69,25 @@ if(!empty($_GET['list'])){
     die(json_encode($output));
 }
 
+function connect(){
+	$host = getenv('OPENSHIFT_MYSQL_DB_HOST') ? getenv('OPENSHIFT_MYSQL_DB_HOST') : "localhost";
+	$port = getenv('OPENSHIFT_MYSQL_DB_PORT');
+	$username = getenv('OPENSHIFT_MYSQL_DB_USERNAME') ? getenv('OPENSHIFT_MYSQL_DB_USERNAME') : "root";
+	$password = getenv('OPENSHIFT_MYSQL_DB_PASSWORD') ? getenv('OPENSHIFT_MYSQL_DB_PASSWORD') : "12345";
+	$conn = new MysqliDb ($host,$username,$password,"isbntool");
+	return $conn;
+}
+
 function get_datatables($id=false){
-	$content = file_get_contents('database/isbnNumbers.json');
+	// $content = file_get_contents('database/isbnNumbers.json');
 	// $content = file_get_contents("https://fultonfile-agusnurwanto.rhcloud.com/tmp/json/isbnNumbers.json");
+
+	$db = connect();
+	$content = $db->get('data');
+	$content = json_encode($content);
+
 	$content = json_decode($content);
+
     if(!empty($_POST["search"]["value"])){
     	$search = $_POST["search"]["value"];
     	$newData = array();
@@ -132,22 +149,24 @@ function get_datatables($id=false){
 }
 
 if(!empty($_GET["add"])){
-	$dt = get_datatables();
 	$id = $_POST["id"];
 	$isbn_number = $_POST["isbn_number"];
 	$custom_price = $_POST["custom_price"];
 	$real_price = $_POST["real_price"];
 	$difference = $_POST["difference"];
+	$db = connect();
 	$data = array(
-            "id" => $id,
-            "isbn_number" => $isbn_number,
-            "custom_price" => $custom_price,
-            "real_price" => $real_price,
-            "difference" => round($difference, 2),
-        );
-    $dt["content"][] = $data;
-	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($dt["content"])));
-    echo json_encode(array("status" => TRUE));
+        "id" => "",
+        "isbn_number" => $isbn_number,
+        "custom_price" => $custom_price,
+        "real_price" => $real_price,
+        "difference" => round($difference, 2),
+    );
+	$id = $db->insert ('data', $data);
+	if ($id)
+    	die(json_encode(array("status" => TRUE, "id" => $id)));
+	else
+	    die(json_encode(array("error" => TRUE)));
 }
 
 function getRealPrice($id){
@@ -178,17 +197,18 @@ if(!empty($_GET["update"])){
 	$custom_price = $_POST["custom_price"];
 	$real_price = $_POST["real_price"];
 	$difference = $_POST["difference"];
-	$data = get_datatables();
-	foreach ($data["content"] as $k => $v) {
-		if($v->id==$id){
-			$data["content"][$k]->isbn_number = $isbn_number;
-			$data["content"][$k]->custom_price = $custom_price;
-			$data["content"][$k]->real_price = $real_price;
-			$data["content"][$k]->difference = round($difference, 2);
-		}
-	}
-	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($data["content"])));
-	die(json_encode(array("status" => TRUE)));
+	$db = connect();
+	$data = array(
+		"isbn_numbern" => $isbn_number,
+		"custom_price" => $custom_price,
+		"real_price" => $real_price,
+		"difference" => round($difference, 2)
+	);
+	$db->where ('id', $id);
+	if ($db->update('data', $data))
+		die(json_encode(array("status" => TRUE, "msg" => $db->count . ' records were updated')));
+	else
+	    die(json_encode(array("error" => TRUE, "msg" => 'update failed: ' . $db->getLastError())));
 }
 
 if(!empty($_GET["replace"])){
@@ -197,47 +217,34 @@ if(!empty($_GET["replace"])){
 	$custom_price = $_POST["custom_price"];
 	$real_price = $_POST["real_price"];
 	$difference = round($_POST["difference"], 2);
-	$data = get_datatables();
-	$cek = false;
-	foreach ($data["content"] as $k => $v) {
-		if($data["content"][$k]->isbn_number==$isbn_number){
-			if($custom_price!=0){
-				$data["content"][$k]->custom_price = $custom_price;
-				$data["content"][$k]->difference = round($difference, 2);
-			}else{
-				$difference = $real_price - $data["content"][$k]->custom_price;
-				$data["content"][$k]->difference = round($difference, 2);
-			}
-			$data["content"][$k]->real_price = $real_price;
-			$cek = true;
-			$currentData = $data["content"][$k];
-			break;
+	$db = connect();
+	$db->where("id", $id);
+	$oldData = $db->getOne ("data");
+	if(!empty($oldData)){
+		if($custom_price!=0){
+			$oldData["custom_price"] = $custom_price;
+			$oldData["difference"] = round($difference, 2);
+		}else{
+			$difference = $real_price - $oldData["custom_price"];
+			$oldData["difference"] = round($difference, 2);
 		}
-	}
-	if(empty($cek)){
-		$data["content"][] = $_POST;
+		$oldData["real_price"] = $real_price;
+		$currentData = $oldData;
+	}else{
 		$currentData = $_POST;
 	}
-	// echo "<pre>".print_r($data["content"],1)."</pre>";
-	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($data["content"])));
+	$db->replace("data", $currentData);
 	die(json_encode(array("status" => TRUE, "data" => $currentData)));
 }
 
 if(!empty($_GET["delete"])){
 	$id = $_GET["id"];
-	$newData = array();
-	if($id!="all"){
-		$data = get_datatables();
-		foreach ($data["content"] as $k => $v) {
-			if($v->id==$id){
-				unset($data["content"][$k]);
-			}else{
-				$newData[] = $v;
-			}
-		}
-	}
-	putContent(array("folder"=>"json", "file"=>"isbnNumbers.json", "content"=>json_encode($newData)));
-	die(json_encode(array("status" => TRUE)));
+	$db = connect();
+	$db->where('id', $id);
+	if($db->delete('data'))
+		die(json_encode(array("status" => TRUE)));
+	else
+		die(json_encode(array("error" => TRUE)));
 }
 
 function putContent($options){
@@ -280,7 +287,7 @@ function getProxy(){
 function request($option){
 	$url = $option['url'];
 	$ch = curl_init();
-	$proxy = getProxy();
+	// $proxy = getProxy();
 
 	curl_setopt($ch, CURLOPT_URL,$url);
 	if (isset($proxy)) {
