@@ -696,7 +696,7 @@
     }
 
     function getPage(ids){
-      isbn_number = ids["isbn"].match(/\d/g);
+      isbn_number = ids["isbn"].toString().match(/\d/g);
       isbn_number = isbn_number.join("");
       isbn_number = changeFormat(isbn_number);
       return new Promise(function(resolve, reject){
