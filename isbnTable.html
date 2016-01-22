@@ -713,8 +713,10 @@
                 var text = $("#offer2 div.book-price-normal", "<div>"+html+"</div>").text();
                 // window.html = html;
                 // console.log("text", text);
-                if(!text){
-                  cekEmpty += "<br>Price not found!";
+                try{
+                  var real_price = text.match(/\d[0-999]\.\d[0-999]/g).join("");
+                }catch(e){
+                  cekEmpty += "<br>Price not found! "+text;
                   swal({   
                     title: "Error Scrape",   
                     text: cekEmpty,
@@ -722,7 +724,6 @@
                   });
                   return resolve();
                 }
-                var real_price = text.match(/\d[0-999]\.\d[0-999]/g).join("");
               }else{
                 var html = $.parseHTML(res.msg
                     .replace(/<img[^>]*>/g,"")
