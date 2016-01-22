@@ -98,6 +98,7 @@
                   <li>Add changelog Tab.</li>
                   <li>Add feature get price bookbyte from bookscouter.com</li>
                   <li>Fix bug replace database.</li>
+                  <li>Fix bug get price.</li>
                 </ul>
               </li>
               <li>
@@ -712,7 +713,7 @@
                 var text = $("#offer2 div.book-price-normal", "<div>"+html+"</div>").text();
                 // window.html = html;
                 // console.log("text", text);
-                var real_price = text.match(/\d./g).join(".");
+                var real_price = text.match(/\d./g).join("");
               }else{
                 var html = $.parseHTML(res.msg
                     .replace(/<img[^>]*>/g,"")
