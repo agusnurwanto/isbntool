@@ -714,7 +714,8 @@
                 // window.html = html;
                 // console.log("text", text);
                 try{
-                  var real_price = text.match(/\d[0-999]\.\d[0-999]/g).join("");
+                  text.trim()
+                  var real_price = text.split("$")[1];
                 }catch(e){
                   cekEmpty += "<br>Price not found! "+text;
                   swal({   
