@@ -170,9 +170,24 @@ if(!empty($_GET["add"])){
 }
 
 function getRealPrice($id){
-	$option = array(
-			"url" => "https://www.bookbyte.com/buyback2.aspx?isbns=".rawurlencode($id)
+	if(!empty($_GET["action_type"]) && $_GET["action_type"]=="2"){
+		$url = "http://bookscouter.com/prices.php?isbn=".rawurlencode($id);
+		$option = array(
+			"url" => $url,
+			"cookie" => true
 		);
+		$res = request($option);
+		$res2 = explode("AjaxRetrieve('", $res);
+		$res3 = explode("',", $res2[2]);
+		$uri = $res3[0];
+		$date = new DateTime();
+		$newUrl = "http://bookscouter.com".$uri."&ts=".$date->getTimestamp();
+		// echo $newUrl;
+		$option["url"] = $newUrl;
+	}else{
+		$url = "https://www.bookbyte.com/buyback2.aspx?isbns=".rawurlencode($id);
+		$option = array( "url" => $url );
+	}
 	$data = array();
 	$data["msg"] = request($option);
 	$data["error"] = 0;
@@ -218,7 +233,7 @@ if(!empty($_GET["replace"])){
 	$real_price = $_POST["real_price"];
 	$difference = round($_POST["difference"], 2);
 	$db = connect();
-	$db->where("id", $id);
+	$db->where("isbn_number", $isbn_number);
 	$oldData = $db->getOne ("data");
 	if(!empty($oldData)){
 		if($custom_price!=0){
@@ -229,11 +244,14 @@ if(!empty($_GET["replace"])){
 			$oldData["difference"] = round($difference, 2);
 		}
 		$oldData["real_price"] = $real_price;
+		unset($oldData["id"]);
 		$currentData = $oldData;
+		$db->where("isbn_number", $isbn_number);
+		$db->update("data", $currentData);
 	}else{
 		$currentData = $_POST;
+		$db->replace("data", $currentData);
 	}
-	$db->replace("data", $currentData);
 	die(json_encode(array("status" => TRUE, "data" => $currentData)));
 }
 
@@ -298,6 +316,9 @@ function request($option){
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $param);
 	}
+	if(!empty($option["cookie"])){
+		curl_setopt($ch, CURLOPT_COOKIEJAR, dirname(__FILE__) . '/cookie.txt');
+	}
   	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36");
   	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -307,4 +328,21 @@ function request($option){
 	// echo $server_output."cek123";
 	curl_close ($ch);
 	return $server_output;
+}
+
+if(!empty($_GET["getSettings"])){
+	$db = connect();
+	$cols = array("meta_key", "meta_value");
+	$settings = $db->get('settings', null, $cols);
+	die(json_encode($settings));
+}
+
+if(!empty($_GET["saveSettings"])){
+	$db = connect();
+	foreach ($_POST as $k => $v) {
+		$data = array( "meta_value" => $v );
+		$db->where('meta_key', $k);
+		$db->update('settings', $data);
+	}
+	die(json_encode(array("error"=>0)));
 }

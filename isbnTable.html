@@ -29,6 +29,8 @@
       <li role="presentation" class="active"><a href="#upload" aria-controls="upload" role="tab" data-toggle="tab">Upload CSV</a></li>
       <li role="presentation"><a href="#listNumber" aria-controls="listNumber" role="tab" data-toggle="tab">Textarea</a></li>
       <li role="presentation"><a href="#manual" aria-controls="manual" role="tab" data-toggle="tab">Manual</a></li>
+      <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+      <li role="presentation"><a href="#changelog" aria-controls="changelog" role="tab" data-toggle="tab">Changelog</a></li>
     </ul>
     <!-- Tab panes -->
     <div class="tab-content">
@@ -58,6 +60,113 @@
           <div class="col-md-12 m15">
             <button class="btn btn-warning" onclick="add_data()"><i class="glyphicon glyphicon-plus"></i> Add New Number</button>
             <input type="hidden" name="lastID" value="" id="lastID">
+          </div>
+        </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="settings">
+        <div class="row">
+          <div class="col-md-12 m15">
+            <form class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-12">
+                  <input type="radio" value="1" name="scrape-type" id="scrape_bookbyte">
+                  Scraping price bookbyte.com use current browser
+                </label>
+                <label class="col-sm-12">
+                  <input type="radio" value="2" name="scrape-type" id="scrape_bookscouter">
+                  Scraping price bookbyte.com from bookscouter.com
+                </label>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                    <button type="submit" class="btn btn-primary" id="save-setting">Save</button>
+                    <button type="submit" class="btn btn-default" id="reset-setting">Reset Setting</button>
+                </div>
+              </div>
+          </form>
+          </div>
+        </div>
+      </div>
+      <div role="tabpanel" class="tab-pane" id="changelog">
+        <div class="row">
+          <div class="col-md-12 m15">
+            <ul>
+              <li>
+                Update 22 Jan 2016 :
+                <ul>
+                  <li>Add settings Tab.</li>
+                  <li>Add changelog Tab.</li>
+                  <li>Add feature get price bookbyte from bookscouter.com</li>
+                  <li>Fix bug replace database.</li>
+                </ul>
+              </li>
+              <li>
+                Update 14 Jan 2016 :
+                <ul>
+                  <li>Add database MySQL.</li>
+                  <li>Change database from file to MySQL.</li>
+                </ul>
+              </li>
+              <li>
+                Update 03 Dec 2015 :
+                <ul>
+                  <li>Fix error textarea Add new Number.</li>
+                  <li>Fix error ordered on difference field.</li>
+                  <li>Add new feature for insert data with import CSV from same tools.</li>
+                </ul>
+              </li>
+              <li>
+                Update 30 Nov 2015 :
+                <ul>
+                  <li>Add buy price from excel to table.</li>
+                  <li>Fix error ordered when click refresh all.</li>
+                  <li>Round difference value.</li>
+                </ul>
+              </li>
+              <li>
+                Update 27 Nov 2015 :
+                <ul>
+                  <li>Add featured export data.</li>
+                  <li>Add dellete all button.</li>
+                  <li>Add refresh all current bookbyte price button.</li>
+                  <li>Add default order by ID DESC.</li>
+                  <li>Change header field name.</li>
+                  <li>Fix bugs refresh button.</li>
+                </ul>
+              </li>
+              <li>
+                Update 26 Nov 2015 :
+                <ul>
+                  <li>Add "How to use" section.</li>
+                  <li>Add video tutorial.</li>
+                </ul>
+              </li>
+              <li>
+                Update 25 Nov 2015 :
+                <ul>
+                  <li>Change upload data to local file system.</li>
+                  <li>Add feature upload CSV.</li>
+                  <li>Add feature add numbers with textarea.</li>
+                  <li>Change default alert with sweetallert library.</li>
+                  <li>Fix error length ISBNs (must 10 caracther).</li>
+                </ul>
+              </li>
+              <li>
+                Update 24 Nov 2015 :
+                <ul>
+                  <li>Change upload data to <a href="https://fultonfile-agusnurwanto.rhcloud.com/tmp">fultonfile-agusnurwanto.rhcloud.com</a>.</li>
+                </ul>
+              </li>
+              <li>
+                Update 23 Nov 2015 :
+                <ul>
+                  <li>Fix function edit data.</li>
+                  <li>Fix function delete data.</li>
+                  <li>Fix function short by column.</li>
+                  <li>Fix function search.</li>
+                </ul>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -132,80 +241,6 @@
       <h2>Video Tutorial</h2>
       <iframe width="560" height="315" src="https://www.youtube.com/embed/cukuLCnmkLY" frameborder="0" allowfullscreen></iframe>
     </center>
-    <br>
-    <div class="row">
-      <div class="col-md-12">
-        <h2>Changelog</h2>  
-        <ul>
-          <li>
-            Update 23 Nov 2015 :
-            <ul>
-              <li>Fix function edit data.</li>
-              <li>Fix function delete data.</li>
-              <li>Fix function short by column.</li>
-              <li>Fix function search.</li>
-            </ul>
-          </li>
-          <li>
-            Update 24 Nov 2015 :
-            <ul>
-              <li>Change upload data to <a href="https://fultonfile-agusnurwanto.rhcloud.com/tmp">fultonfile-agusnurwanto.rhcloud.com</a>.</li>
-            </ul>
-          </li>
-          <li>
-            Update 25 Nov 2015 :
-            <ul>
-              <li>Change upload data to local file system.</li>
-              <li>Add feature upload CSV.</li>
-              <li>Add feature add numbers with textarea.</li>
-              <li>Change default alert with sweetallert library.</li>
-              <li>Fix error length ISBNs (must 10 caracther).</li>
-            </ul>
-          </li>
-          <li>
-            Update 26 Nov 2015 :
-            <ul>
-              <li>Add "How to use" section.</li>
-              <li>Add video tutorial.</li>
-            </ul>
-          </li>
-          <li>
-            Update 27 Nov 2015 :
-            <ul>
-              <li>Add featured export data.</li>
-              <li>Add dellete all button.</li>
-              <li>Add refresh all current bookbyte price button.</li>
-              <li>Add default order by ID DESC.</li>
-              <li>Change header field name.</li>
-              <li>Fix bugs refresh button.</li>
-            </ul>
-          </li>
-          <li>
-            Update 30 Nov 2015 :
-            <ul>
-              <li>Add buy price from excel to table.</li>
-              <li>Fix error ordered when click refresh all.</li>
-              <li>Round difference value.</li>
-            </ul>
-          </li>
-          <li>
-            Update 03 Dec 2015 :
-            <ul>
-              <li>Fix error textarea Add new Number.</li>
-              <li>Fix error ordered on difference field.</li>
-              <li>Add new feature for insert data with import CSV from same tools.</li>
-            </ul>
-          </li>
-          <li>
-            Update 14 Jan 2016 :
-            <ul>
-              <li>Add database MySQL.</li>
-              <li>Change database from file to MySQL.</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-  </div>
  
   <script src="js/jquery.min.js"></script>
   <script src="plupload/js/plupload.full.min.js"></script>
@@ -355,6 +390,63 @@
         }
     });
 
+    getSettings();
+
+    $("#save-setting").on("click", function(e){
+      e.preventDefault();
+      var price_bookbyte = $("input[name='scrape-type']:checked").val();
+      var options = {
+        price_bookbyte: price_bookbyte,
+        action: "Save"
+      }
+      saveSettings(options);
+    });
+
+    $("#reset-setting").on("click", function(e){
+      e.preventDefault();
+      $("#scrape_bookscouter").prop("checked", true);
+      var options = {
+        price_bookbyte: 2,
+        action: "Reset"
+      }
+      saveSettings(options);
+    });
+
+    function saveSettings(options){
+      $.ajax({
+        url : "ajax.php?saveSettings=true",
+        type: "POST",
+        data: "price_bookbyte="+options["price_bookbyte"],
+        dataType: "JSON",
+        success: function(data){
+          if(data.error==0){
+            alert("Success "+options["action"]+" settings!");
+          }
+        }
+      });
+    }
+
+    function getSettings(){
+      $.ajax({
+        url : "ajax.php?getSettings=true",
+        type: "GET",
+        dataType: "JSON",
+        success: function(data){
+          window.settings = [];
+          if(data){
+            for(var i in data){
+              settings[data[i]["meta_key"]] = data[i]["meta_value"];
+            }
+          }
+          if(settings["price_bookbyte"] && settings["price_bookbyte"]=="1"){
+            $("#scrape_bookbyte").prop("checked", true);
+          }else{
+            $("#scrape_bookscouter").prop("checked", true);
+          }
+        }
+      });
+    }
+
     var closePrintView = function(e) {
         if(e.which == 27) {
             printViewClosed(); 
@@ -461,8 +553,9 @@
         $('.modal-content').append('<button class="btn btn-lg btn-warning btn-loading" onclick="return false">'
           +'<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>'
           +' Loading...</button><div id="block"></div>');
+        var action_type = $("input[name='scrape-type']:checked").val();
         $.ajax({
-            url : "ajax.php?getRealPrice=true&id="+isbn_number,
+            url : "ajax.php?getRealPrice=true&id="+isbn_number+"&action_type="+action_type,
             type: "POST",
             dataType: "JSON",
             success: function(res){
@@ -607,47 +700,56 @@
       isbn_number = isbn_number.join("");
       isbn_number = changeFormat(isbn_number);
       return new Promise(function(resolve, reject){
+        var action_type = $("input[name='scrape-type']:checked").val();
         $.ajax({
-          url : "ajax.php?getRealPrice=true&id="+isbn_number,
+          url : "ajax.php?getRealPrice=true&id="+isbn_number+"&action_type="+action_type,
           type: "POST",
           dataType: "JSON",
           success: function(res){
             if(res.error=="0"){
-              var html = $.parseHTML(res.msg
-                  .replace(/<img[^>]*>/g,"")
-                  .replace(/<link[^>]*>/g,"")
-                  .replace(/<script[^>]*>/g,""));
-              var err = $("#ctl00_ContentPlaceHolder1_trSpecialMessage", html).text().trim();
-              if(err){
-                cekEmpty += "<br>"+err;
-                swal({   
-                  title: "Error Scrape",   
-                  text: cekEmpty,
-                  html: true
-                });
-                resolve();
+              if(action_type=="2"){
+                var html = res.msg.replace(/img/g, "tes");
+                var text = $("#offer2 div.book-price-normal", "<div>"+html+"</div>").text();
+                // window.html = html;
+                // console.log("text", text);
+                var real_price = text.match(/\d./g).join(".");
               }else{
-                var real_price = $("table.gvItemsBuyback table", html).eq(0)
-                  .find("td div span").text()
-                  .split("$")[1];
-                var id = $("#lastID").val();
-                var options = {
-                  id: (+id)+1,
-                  isbn_number: isbn_number,
-                  custom_price: ids["buy"] || 0,
-                  real_price: real_price
-                }
-                saveData(options, function(id){
-                  $("#lastID").val(id);
-                  cekSucces += "<br>"+isbn_number+" is available. Sell Price: $"+real_price
+                var html = $.parseHTML(res.msg
+                    .replace(/<img[^>]*>/g,"")
+                    .replace(/<link[^>]*>/g,"")
+                    .replace(/<script[^>]*>/g,""));
+                var err = $("#ctl00_ContentPlaceHolder1_trSpecialMessage", html).text().trim();
+                if(err){
+                  cekEmpty += "<br>"+err;
                   swal({   
-                    title: "success Scrape",   
-                    text: cekSucces,
+                    title: "Error Scrape",   
+                    text: cekEmpty,
                     html: true
                   });
                   return resolve();
-                });
+                }
+                var real_price = $("table.gvItemsBuyback table", html).eq(0)
+                  .find("td div span").text()
+                  .split("$")[1];
               }
+              var id = $("#lastID").val();
+              var options = {
+                id: (+id)+1,
+                isbn_number: isbn_number,
+                custom_price: ids["buy"] || 0,
+                real_price: real_price
+              }
+              console.log("options", options);
+              saveData(options, function(id){
+                $("#lastID").val(id);
+                cekSucces += "<br>"+isbn_number+" is available. Sell Price: $"+real_price
+                swal({   
+                  title: "success Scrape",   
+                  text: cekSucces,
+                  html: true
+                });
+                return resolve();
+              });
             }else{
               cekEmpty += "<br>Response scrape false!";
               swal({   
