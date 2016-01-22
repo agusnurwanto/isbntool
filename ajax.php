@@ -202,23 +202,26 @@ if(!empty($_GET["getRealPrice"])){
 }
 
 if(!empty($_GET["edit"])){
-	$data = get_datatables($_GET["id"]);
+	$db = connect();
+	$db->where("id", $_GET["id"]);
+	$data = $db->getOne ("data");
 	die(json_encode($data));
 }
 
 if(!empty($_GET["update"])){
-	$id = $_POST["id"];
+	$id = (int)$_POST["id"];
 	$isbn_number = $_POST["isbn_number"];
 	$custom_price = $_POST["custom_price"];
 	$real_price = $_POST["real_price"];
 	$difference = $_POST["difference"];
-	$db = connect();
 	$data = array(
-		"isbn_numbern" => $isbn_number,
+		"id" => $id,
+		"isbn_number" => $isbn_number,
 		"custom_price" => $custom_price,
 		"real_price" => $real_price,
 		"difference" => round($difference, 2)
 	);
+	$db = connect();
 	$db->where ('id', $id);
 	if ($db->update('data', $data))
 		die(json_encode(array("status" => TRUE, "msg" => $db->count . ' records were updated')));

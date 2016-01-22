@@ -478,17 +478,13 @@
         type: "GET",
         dataType: "JSON",
         success: function(data){
-          if(data.length>0){
-            var data = data[0];
-            $('[name="id"]').val(data.id);
-            $('[name="isbn_number"]').val(data.isbn_number);
-            $('[name="custom_price"]').val(data.custom_price);
-            $('[name="real_price"]').val(data.real_price);
-            $('[name="difference"]').val(data.difference);
-            $('#modal_form').modal('show'); // show bootstrap modal when complete loaded
-            $('.modal-title').text('Edit Data ISBN'); // Set title to Bootstrap modal title
-          }
- 
+          $('[name="id"]').val(data.id);
+          $('[name="isbn_number"]').val(data.isbn_number);
+          $('[name="custom_price"]').val(data.custom_price);
+          $('[name="real_price"]').val(data.real_price);
+          $('[name="difference"]').val(data.difference);
+          $('#modal_form').modal('show'); // show bootstrap modal when complete loaded
+          $('.modal-title').text('Edit Data ISBN'); // Set title to Bootstrap modal title
         },
         error: function (jqXHR, textStatus, errorThrown)
         {
