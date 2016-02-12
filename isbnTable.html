@@ -642,39 +642,67 @@
     uploader.init();
 
     function startScrape(){
-      $('body').append('<button class="btn btn-lg btn-warning btn-loading-full" onclick="return false">'
-        +'<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>'
-        +' Loading...</button><div id="block-full"></div>');
-      var i = j = 0;
-      window.cekEmpty = "";
-      window.cekSucces = "";
-      allKey.reduce(function(sequence, key) {
-          return sequence.then(function() {
-            console.log("key", key);
-            return getPage(key);
-          })
-          .then(function(res){
-            return new Promise(function(resolve, reject){
-              if(i>=(allKey.length-1)){
-                if(cekEmpty){
-                  swal({   
-                    title: "Error Scrape",   
-                    text: cekEmpty,
-                    html: true
-                  });
+      swal({ 
+        title: "Scrape All Price",
+        text: "",
+        type: "info",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        closeOnCancel: true,
+        showLoaderOnConfirm: true, 
+        // confirmButtonText: "",
+        cancelButtonText: "Stop Request",
+      }, function(){
+        var i = j = 0;
+        window.cekEmpty = "<b>Response:</b>";
+        window.cekSucces = "";
+        window.stopScrape = true;
+        allKey.reduce(function(sequence, key) {
+            return sequence.then(function() {
+              console.log("key", key);
+              if(stopScrape)
+                return getPage(key);
+              else
+                return Promise.resolve("stop");
+            })
+            .then(function(res){
+              if(res == "stop")
+                return Promise.resolve(res);
+              return new Promise(function(resolve, reject){
+                if(i>=(allKey.length-1)){
+                  if(cekEmpty){
+                    $("div.sweet-alert > p").html(cekEmpty);
+                  }
+                  return resolve(finishScrape());
                 }
-                return resolve(finishScrape());
-              }
+                i++;
+                return resolve(res);
+              });
+            })
+            .catch(function(err){
+              console.log(err.stack);
               i++;
-              return resolve(res);
-            });
+              return Promise.reject(err);
+            })
+        }, Promise.resolve());
+      });
+      function autoClick(){
+        if($('.confirm')){
+          $('.confirm').click();
+          setTimeout(function(){ $('.showSweetAlert .cancel').attr("disabled", false); }, 1000);
+          $('.showSweetAlert .cancel').on('click', function(){
+            window.stopScrape = false;
           })
-          .catch(function(err){
-            console.log(err.stack);
-            i++;
-            return Promise.reject(err);
-          })
-      }, Promise.resolve());
+        }else{
+          setTimeout(function(){
+            autoClick();
+          }, 1500);
+        }
+        return;
+      }
+      setTimeout(function(){
+        autoClick();
+      }, 500);
     }
 
     function finishScrape(){
@@ -714,11 +742,7 @@
                   var real_price = text.split("$")[1];
                 }catch(e){
                   cekEmpty += "<br>Price not found! "+text;
-                  swal({   
-                    title: "Error Scrape",   
-                    text: cekEmpty,
-                    html: true
-                  });
+                  $("div.sweet-alert > p").html(cekEmpty);
                   return resolve();
                 }
               }else{
@@ -729,11 +753,7 @@
                 var err = $("#ctl00_ContentPlaceHolder1_trSpecialMessage", html).text().trim();
                 if(err){
                   cekEmpty += "<br>"+err;
-                  swal({   
-                    title: "Error Scrape",   
-                    text: cekEmpty,
-                    html: true
-                  });
+                  $("div.sweet-alert > p").html(cekEmpty);
                   return resolve();
                 }
                 var real_price = $("table.gvItemsBuyback table", html).eq(0)
@@ -751,25 +771,17 @@
               saveData(options, function(id){
                 $("#lastID").val(id);
                 cekSucces += "<br>"+isbn_number+" is available. Sell Price: $"+real_price
-                swal({   
-                  title: "success Scrape",   
-                  text: cekSucces,
-                  html: true
-                });
+                $("div.sweet-alert > p").html(cekSucces);
                 return resolve();
               });
             }else{
               cekEmpty += "<br>Response scrape false!";
-              swal({   
-                title: "Error Scrape",   
-                text: cekEmpty,
-                html: true
-              });
+              $("div.sweet-alert > p").html(cekEmpty);
               return resolve();
             }
           },
           error: function (jqXHR, textStatus, errorThrown){
-              swal('Error adding / update data');
+              $("div.sweet-alert > p").append("<br>"+'Error adding / update data');
           }
         });
       })

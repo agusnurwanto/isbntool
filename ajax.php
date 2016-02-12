@@ -178,19 +178,25 @@ function getRealPrice($id){
 		);
 		$res = request($option);
 		$res2 = explode("AjaxRetrieve('", $res);
-		$res3 = explode("',", $res2[2]);
-		$uri = $res3[0];
-		$date = new DateTime();
-		$newUrl = "http://bookscouter.com".$uri."&ts=".$date->getTimestamp();
-		// echo $newUrl;
-		$option["url"] = $newUrl;
+		if(!empty($res2[2])){
+			$res3 = explode("',", $res2[2]);
+			$uri = $res3[0];
+			$date = new DateTime();
+			$newUrl = "http://bookscouter.com".$uri."&ts=".$date->getTimestamp();
+			// echo $newUrl;
+			$option["url"] = $newUrl;
+		}else{
+			$option["url"] = "";
+		}
 	}else{
 		$url = "https://www.bookbyte.com/buyback2.aspx?isbns=".rawurlencode($id);
 		$option = array( "url" => $url );
 	}
 	$data = array();
-	$data["msg"] = request($option);
-	$data["error"] = 0;
+	if(!empty($option["url"])){
+		$data["msg"] = request($option);
+		$data["error"] = 0;
+	}
 	if(empty($data["msg"])){
 		$data["error"] = 1;
 	}

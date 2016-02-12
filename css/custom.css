@@ -48,7 +48,7 @@
     position: fixed;
     top: 200px;
     left: 47%;
-    z-index: 22;
+    z-index: 22222222;
 }
 
 #block-full{
@@ -75,8 +75,11 @@
 div#table_info{ float: left; }
 
 div.sweet-alert > p{
-    display: block;
-    margin-top: -108px;
-    max-height: 400px;
+    max-height: 200px;
     overflow: auto;
+}
+
+.sweet-alert {
+    max-height: 320px;
+    overflow: auto !important;
 }
