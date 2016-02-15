@@ -23,11 +23,25 @@ class Proxy{
         return $this->port;
     }
     public function setRandomProxyAndPort(){
-        $ch = curl_init($this->proxyListUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        $proxyListUrlHtml = curl_exec($ch);
-        curl_close($ch);
+        $filename_tmp = dirname(__FILE__) . "/tem_".date("Y-m-d");
+        if(file_exists($filename_tmp)){
+            $proxyListUrlHtml = file_get_contents($filename_tmp);
+        }else{
+            $ch = curl_init($this->proxyListUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            $proxyListUrlHtml = curl_exec($ch);
+            curl_close($ch);
+
+            $files = glob(dirname(__FILE__) . "/{tem_}*");
+            foreach($files as $file){
+                if(is_file($file))
+                    unlink($file);
+            }
+
+            file_put_contents($filename_tmp, $proxyListUrlHtml);
+        }
+
         preg_match_all($this->pattern, $proxyListUrlHtml, $matches);
         // echo "<pre>".print_r($matches,1)."</pre>";
         $proxy = $matches[0][array_rand($matches[0])];

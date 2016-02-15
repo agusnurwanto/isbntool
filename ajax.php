@@ -177,6 +177,7 @@ function getRealPrice($id){
 			"cookie" => true
 		);
 		$res = request($option);
+		// echo $res; die();
 		$res2 = explode("AjaxRetrieve('", $res);
 		if(!empty($res2[2])){
 			$res3 = explode("',", $res2[2]);
@@ -314,7 +315,7 @@ function getProxy(){
 function request($option){
 	$url = $option['url'];
 	$ch = curl_init();
-	// $proxy = getProxy();
+	$proxy = getProxy();
 
 	curl_setopt($ch, CURLOPT_URL,$url);
 	if (isset($proxy)) {
@@ -326,15 +327,17 @@ function request($option){
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $param);
 	}
 	if(!empty($option["cookie"])){
-		curl_setopt($ch, CURLOPT_COOKIEJAR, dirname(__FILE__) . '/cookie.txt');
+		curl_setopt($ch, CURLOPT_COOKIEJAR, dirname(__FILE__) . '/upload/cookie.txt');
 	}
   	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36");
   	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HEADER, 1);
   	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 600);
   	curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 	$server_output = curl_exec ($ch);
-	// echo $server_output."cek123";
+	// echo $server_output."cek123 -> ". $proxy." $url";die();
 	curl_close ($ch);
 	return $server_output;
 }
