@@ -302,7 +302,7 @@ if(!empty($_GET["getKeys"])){
 // http://www.jacobward.co.uk/using-proxies-for-scraping-with-php-curl/
 function getProxy(){
 	// if(!empty($_GET['radomProxy'])){
-		require __DIR__ . '/library/getProxy.php';
+		include(__DIR__ . '/library/getProxy.php');
 		$hoge = new Proxy();
 		$hoge->setRandomProxyAndPort();
 		$proxy = $hoge->getProxy().":".$hoge->getPort();

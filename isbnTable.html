@@ -76,6 +76,10 @@
                   <input type="radio" value="2" name="scrape-type" id="scrape_bookscouter">
                   Scraping price bookbyte.com from bookscouter.com
                 </label>
+                <label class="col-sm-12">
+                  <input type="radio" value="3" name="scrape-type" id="scrape_bookscouter_extension">
+                  Scraping price bookbyte.com from bookscouter.com with FLIP extension
+                </label>
               </div>
               <div class="form-group">
                 <div class="col-sm-12">
@@ -91,6 +95,12 @@
         <div class="row">
           <div class="col-md-12 m15">
             <ul>
+              <li>
+                Update 17 Feb 2016 :
+                <ul>
+                  <li>Add new setting for scrape with extension.</li>
+                </ul>
+              </li>
               <li>
                 Update 22 Jan 2016 :
                 <ul>
@@ -551,6 +561,31 @@
           +'<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>'
           +' Loading...</button><div id="block"></div>');
         var action_type = $("input[name='scrape-type']:checked").val();
+        if(action_type == "3"){
+          window.postMessage({ 
+            arg: { 
+              ids: { isbn: isbn_number }, 
+              cekEmpty: false, 
+              cekSucces: false
+            } 
+          }, "*");
+          window.addEventListener("message", listener , false);
+          function listener(event){
+            if(event.data.nav && event.data.nav == "afterScrape"){
+              if(event.data.res.success == 1){
+                $("input[name='real_price']").val(event.data.res.options.real_price);
+                var difference = (+event.data.res.options.real_price)-(+custom_price);
+                $("input[name='difference']").val(difference);
+                $('.modal-content .btn-loading').remove();
+                $('.modal-content #block').remove();
+              }else{
+                swal(event.data.res.cekEmpty);
+              }
+              window.removeEventListener('message', listener, false);
+            }
+          }
+          return;
+        }
         $.ajax({
             url : "ajax.php?getRealPrice=true&id="+isbn_number+"&action_type="+action_type,
             type: "POST",
@@ -721,11 +756,42 @@
     }
 
     function getPage(ids){
+      var action_type = $("input[name='scrape-type']:checked").val();
+      if(action_type == "3"){
+        window.postMessage({ 
+          arg: { 
+            ids: ids, 
+            cekEmpty: cekEmpty, 
+            cekSucces: cekSucces
+          } 
+        }, "*");
+        return new Promise(function(resolve, reject){
+          window.addEventListener("message", listener , false);
+          function listener(event){
+            if(event.data.nav && event.data.nav == "afterScrape"){
+              cekEmpty = event.data.res.cekEmpty;
+              cekSucces = event.data.res.cekSucces;
+              if(event.data.res.success == 1){
+                console.log("event.data.res.options", event.data.res.options);
+                saveData(event.data.res.options, function(id){
+                  $("#lastID").val(id);
+                  $("div.sweet-alert > p").html(event.data.res.cekSucces);
+                });
+              }else{
+                $("div.sweet-alert > p").html(event.data.res.cekEmpty);
+              }
+              setTimeout(function(){
+                resolve();
+                window.removeEventListener('message', listener, false);
+              }, 5000);
+            }
+          }
+        });
+      }
       isbn_number = ids["isbn"].toString().match(/\d/g);
       isbn_number = isbn_number.join("");
       isbn_number = changeFormat(isbn_number);
       return new Promise(function(resolve, reject){
-        var action_type = $("input[name='scrape-type']:checked").val();
         $.ajax({
           url : "ajax.php?getRealPrice=true&id="+isbn_number+"&action_type="+action_type,
           type: "POST",
@@ -789,6 +855,10 @@
         console.log(err.stack);
         return Promise.reject();
       });
+    }
+
+    function listener(){
+
     }
 
     function saveData(options, cb){
