@@ -96,6 +96,12 @@
           <div class="col-md-12 m15">
             <ul>
               <li>
+                Update 19 Feb 2016 :
+                <ul>
+                  <li>Fix bug on setting tab.</li>
+                </ul>
+              </li>
+              <li>
                 Update 17 Feb 2016 :
                 <ul>
                   <li>Add new setting for scrape with extension.</li>
@@ -451,6 +457,8 @@
           }
           if(settings["price_bookbyte"] && settings["price_bookbyte"]=="1"){
             $("#scrape_bookbyte").prop("checked", true);
+          }else if(settings["price_bookbyte"] && settings["price_bookbyte"]=="3"){
+            $("#scrape_bookscouter_extension").prop("checked", true);
           }else{
             $("#scrape_bookscouter").prop("checked", true);
           }
